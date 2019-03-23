@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Greg\'s Location Message Board</string>
+    <string name="title_activity_comment_feed">Comment Feed</string>
+    <string name="username">Username:</string>
+    <string name="name">Name</string>
+    <string name="getStartedButton">Get Started</string>
+    <string name="refreshButton">Refresh</string>
+</resources>
