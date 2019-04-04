@@ -9,7 +9,6 @@
     android:background="#ffffff"
     android:orientation="vertical">
 
-    <!-- TODO: replace "temp title" with a landmark name -->
     <android.support.v7.widget.Toolbar
         android:id="@+id/my_toolbar"
         android:layout_width="match_parent"
@@ -25,8 +24,10 @@
     <android.support.v7.widget.RecyclerView
         android:id="@+id/comment_recycler"
         android:layout_width="wrap_content"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_above="@+id/llSend"
+        android:layout_below="@+id/my_toolbar"
+        android:paddingTop="?attr/actionBarSize"
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"

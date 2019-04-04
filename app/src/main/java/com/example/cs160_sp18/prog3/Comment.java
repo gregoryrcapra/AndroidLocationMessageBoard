@@ -1,9 +1,13 @@
 package com.example.cs160_sp18.prog3;
 
+import com.google.firebase.database.Exclude;
+
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 // custom class made for storing a message. you can update this class
-public class Comment {
+public class Comment implements Comparable<Comment>{
 
     public String text;
     public String username;
@@ -13,6 +17,27 @@ public class Comment {
         this.text = text;
         this.username = username;
         this.date = date;
+    }
+
+    Comment(String text, String username, long unixTime) {
+        this.text = text;
+        this.username = username;
+        this.date = new Date(unixTime);
+    }
+
+    @Exclude
+    public Map<String, Object> toMap() {
+        HashMap<String, Object> result = new HashMap<>();
+        result.put("text", this.text);
+        result.put("username", this.username);
+        result.put("date", this.date.getTime());
+        return result;
+    }
+
+    @Override
+    public int compareTo(Comment compareComment) {
+        Date compareDate=((Comment)compareComment).date;
+        return this.date.compareTo(compareDate);
     }
 
     // returns a string indicating how long ago this post was made

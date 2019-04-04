@@ -1,0 +1,44 @@
+{
+  "project_info": {
+    "project_number": "1045406613961",
+    "firebase_url": "https://grc-location-message-board.firebaseio.com",
+    "project_id": "grc-location-message-board",
+    "storage_bucket": "grc-location-message-board.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1045406613961:android:5c91787687d4ca71",
+        "android_client_info": {
+          "package_name": "com.example.paigeplander.cs160_prog3"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1045406613961-jtb0p6hudomvfneje5lfc8vkt4b1ko6k.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.paigeplander.cs160_prog3",
+            "certificate_hash": "130f71a7eaecb035b1d36ec6e77f6e0512175b1d"
+          }
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBB5eNiZ903nLDdoy0E1HctwWes_oZ7nhQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1045406613961-2s3ibrulhrl7pnprps1r2leuvuhu6jf7.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

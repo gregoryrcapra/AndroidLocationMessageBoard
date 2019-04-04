@@ -81,8 +81,9 @@ public class LandmarkActivity extends AppCompatActivity {
     private double currentLongitude;
 
     /*
-    Part 2:
-    TODO: Fix Refresh issue. Hook up to Firebase, BONUS features- email login w/ Firebase authentication, upvoting/downvoting comments (stored on FB)
+    TODO: handle threading issue
+    -call view.post(runnable) from worker thread
+    -subclass asynctask- creates threads behind the scenes
      */
 
     @Override

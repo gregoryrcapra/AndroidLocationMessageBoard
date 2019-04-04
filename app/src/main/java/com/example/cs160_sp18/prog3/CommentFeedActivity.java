@@ -1,18 +1,32 @@
 package com.example.cs160_sp18.prog3;
 
 import android.content.Intent;
+import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
+
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 // Displays a list of comments for a particular landmark.
 public class CommentFeedActivity extends AppCompatActivity {
@@ -30,9 +44,9 @@ public class CommentFeedActivity extends AppCompatActivity {
     Button sendButton;
     Toolbar mActionBarToolbar;
 
-    /* TODO: right now mRecyclerView is using hard coded comments.
-     * You'll need to add functionality for pulling and posting comments from Firebase
-     */
+    DatabaseReference landmarkDbRef;
+    long numComments;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,24 +75,35 @@ public class CommentFeedActivity extends AppCompatActivity {
         // create an onclick for the send button
         setOnClickForSendButton();
 
-        // make some test comment objects that we add to the recycler view
-        makeTestComments();
-
-        // use the comments in mComments to create an adapter. This will populate mRecyclerView
-        // with a custom cell (with comment_cell_layout) for each comment in mComments
-        setAdapterAndUpdateData();
-    }
-
-    // TODO: delete me
-    private void makeTestComments() {
-        String randomString = "hello world hello world ";
-        Comment newComment = new Comment(randomString, "test_user1", new Date());
-        Comment hourAgoComment = new Comment(randomString + randomString, "test_user2", new Date(System.currentTimeMillis() - (60 * 60 * 1000)));
-        Comment overHourComment = new Comment(randomString, "test_user3", new Date(System.currentTimeMillis() - (2 * 60 * 60 * 1000)));
-        Comment dayAgoComment = new Comment(randomString, "test_user4", new Date(System.currentTimeMillis() - (25 * 60 * 60 * 1000)));
-        Comment daysAgoComment = new Comment(randomString + randomString + randomString, "test_user5", new Date(System.currentTimeMillis() - (48 * 60 * 60 * 1000)));
-        mComments.add(newComment);mComments.add(hourAgoComment); mComments.add(overHourComment);mComments.add(dayAgoComment); mComments.add(daysAgoComment);
-
+        // get comments from Firebase
+        FirebaseDatabase db = FirebaseDatabase.getInstance();
+        DatabaseReference commentsRef = db.getReference("comments");
+        landmarkDbRef = commentsRef.child(landmarkName);
+        ValueEventListener myDataListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                mComments = new ArrayList<Comment>();
+                HashMap<String, String> landmarkMap = (HashMap<String, String>) dataSnapshot.getValue();
+                if(landmarkMap != null){
+                    Iterator it = landmarkMap.entrySet().iterator();
+                    while (it.hasNext()) {
+                        Map.Entry pair = (Map.Entry)it.next();
+                        HashMap<String,Object> obj = (HashMap<String, Object>) pair.getValue();
+                        long timeStamp = Long.parseLong(obj.get("date").toString());
+                        Comment newComment = new Comment(obj.get("text").toString(), obj.get("username").toString(), new Date(timeStamp*1000));
+                        mComments.add(newComment);
+                        it.remove(); // avoids a ConcurrentModificationException
+                    }
+                }
+                numComments = dataSnapshot.getChildrenCount();
+                setAdapterAndUpdateData();
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.d("0", "cancelled");
+            }
+        };
+        landmarkDbRef.addValueEventListener(myDataListener);
     }
 
     private void setOnClickForSendButton() {
@@ -101,17 +126,23 @@ public class CommentFeedActivity extends AppCompatActivity {
     private void setAdapterAndUpdateData() {
         // create a new adapter with the updated mComments array
         // this will "refresh" our recycler view
+        Collections.sort(mComments);
         mAdapter = new CommentAdapter(this, mComments);
         mRecyclerView.setAdapter(mAdapter);
 
         // scroll to the last comment
-        mRecyclerView.smoothScrollToPosition(mComments.size() - 1);
+        if(mComments.size() > 0) {
+            mRecyclerView.smoothScrollToPosition(mComments.size() - 1);
+        }
     }
 
     private void postNewComment(String commentText) {
-        Comment newComment = new Comment(commentText, commentIntent.getStringExtra("username"), new Date());
-        mComments.add(newComment);
-        setAdapterAndUpdateData();
+        numComments += 1;
+        Comment newComment = new Comment(commentText, commentIntent.getStringExtra("username"), new Date().getTime()/1000L);
+        Map<String, Object> commentValues = newComment.toMap();
+        Map<String, Object> childUpdates = new HashMap<>();
+        childUpdates.put("message"+numComments, commentValues);
+        landmarkDbRef.updateChildren(childUpdates);
     }
 
     @Override
